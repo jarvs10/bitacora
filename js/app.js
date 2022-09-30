@@ -3,16 +3,50 @@ const formulario = document.querySelector('.formulario');
 const actividades = document.querySelector('#listado__actividades');
 //const formulario2 = document.querySelector('.formulario__contenido');
 
+const contratistaInput = document.querySelector('#contratista');
+
+const actividadInput = document.querySelector('#actividad');
+
+const inicioInput = document.querySelector('#inicio');
+
+const finInput= document.querySelector('#fin');
+
+let edicion;
+
+const objactividad = {
+    contratista: '',
+    actividad : '',
+    inicio : '',
+    fin : ''
+}
+
+// arreglo //
+let arreglo = [];
+
 // eventos //
 registroEventos();
 function registroEventos() {
     formulario.addEventListener('submit', validarCampos);
 
+    contratistaInput.addEventListener('change', e => {
+        objactividad.contratista = e.target.value;
+    });
+
+    actividadInput.addEventListener('change', e => {
+        objactividad.actividad = e.target.value;
+    });
+
+    inicioInput.addEventListener('change', e => {
+        objactividad.inicio = e.target.value;
+    });
+
+    finInput.addEventListener('change', e => {
+        objactividad.fin = e.target.value;
+    });
+
     document.addEventListener('DOMContentLoaded', validarCheckbox);
 }
 
-// arreglo //
-let arreglo = [];
 
 // funciones //
 function validarCampos(e) {
@@ -30,26 +64,31 @@ function validarCampos(e) {
         mostrarError('Todos los campos son necesarios');
 
         return;
+    }
+
+    if(edicion){
+        // funcion editar id //
+        editarItem({...objactividad});
+
+        mostrarCorrecto('Datos actualizados correctamente');
+
+        formulario.querySelector('button[type="submit"]').textContent = 'Agregar Actividad';
+
+        edicion = false;
 
     } else {
+        // generar id //
+        objactividad.id = Date.now();
+        
+        // agregar el objeto al arreglo //
+        arreglo.push(objactividad);
+
         mostrarCorrecto('Agregando datos....')
     }
 
-    const objactividad = {
-        id: Date.now(),
-        contratista,
-        actividad,
-        inicio,
-        fin
-    }
-
-    arreglo.push(objactividad);
+    mostrarHTML();
 
     formulario.reset();
-
-    console.log(arreglo);
-
-    mostrarHTML();
 }
 
 function mostrarHTML(){
@@ -80,6 +119,8 @@ function mostrarHTML(){
             eliminarActividad(id);
         }
 
+        btnEditar.onclick = () => editaId(item);
+
         divInfo.appendChild(btnEditar);
         divInfo.appendChild(btneliminar);
         
@@ -87,10 +128,31 @@ function mostrarHTML(){
     })
 }
 
+function editarItem(citaUpdate){
+    arreglo = arreglo.map(cita => cita.id === citaUpdate.id ? citaUpdate : cita);
+    console.log(arreglo);
+
+    //mostrarHTML();
+}
+
 function eliminarActividad(id){
     arreglo = arreglo.filter(item => item.id !== id);
 
     mostrarHTML();
+}
+
+function editaId(item){
+    const { contratista, actividad, inicio, fin } = item;
+
+    // llenar los inputs //
+    contratistaInput.value = contratista;
+    actividadInput.value = actividad;
+    inicioInput.value = inicio;
+    finInput.value = fin;
+
+    formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
+
+    edicion = true;
 }
 
 function limpiarHMTL(){
@@ -126,5 +188,5 @@ function mostrarCorrecto(message) {
 function validarCheckbox(){
     const policia = document.getElementById('policia').checked;
 
-    console.log(policia);
+    //console.log(policia);
 }
